@@ -1,65 +1,80 @@
-from logger import logger
-from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
+import telebot
+from telebot import types
 from constants import constants, message_constants
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
+from horoscope import Horoscope
+
+bot = telebot.TeleBot(constants.TELEGRAM_TOKEN)
 
 
-async def close_keyboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    effective_chat = update.effective_chat
-    if not effective_chat:
-        logger.warning('effective chat is None')
-        return
-    await context.bot.send_message(
-        chat_id=effective_chat.id,
-        text=start(update, context),
-    )
+@bot.message_handler(commands=['start'])
+def start(message):
+    marcup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    b_author = types.KeyboardButton('Автор бота')
+    b_signs = types.KeyboardButton('Все знаки зодиака')
+    marcup.add(b_author, b_signs)
+    bot.send_message(message.chat.id, message_constants.GREETINGS, reply_markup=marcup)
 
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    effective_chat = update.effective_chat
-    if not effective_chat:
-        logger.warning('effective chat is None')
-        return
-    await context.bot.send_message(
-        reply_markup=ReplyKeyboardRemove(),
-        chat_id=effective_chat.id,
-        text=message_constants.GREETINGS,
-    )
+@bot.message_handler(content_types=['text'])
+def bot_message(message):
+    if message.chat.type == 'private':
+        if message.text == 'Автор бота':
+            bot.send_message(message.chat.id, message_constants.AUTHOR)
+        elif message.text == 'Все знаки зодиака':
+            marcup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            aquarius = types.KeyboardButton('Водолей(Aquarius)')
+            signarius = types.KeyboardButton('Стрелец(Signarius)')
+            libra = types.KeyboardButton('Весы(Libra)')
+            virgo = types.KeyboardButton('Дева(Virgo)')
+            back = types.KeyboardButton('Назад')
+            main = types.KeyboardButton('Главное меню')
+            marcup.add(aquarius, signarius, libra, virgo, back, main)
+            bot.send_message(message.chat.id, 'Знаки зодиака', reply_markup=marcup)
+        elif message.text == 'Назад':
+            marcup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            aquarius = types.KeyboardButton('Водолей(Aquarius)')
+            signarius = types.KeyboardButton('Стрелец(Signarius)')
+            libra = types.KeyboardButton('Весы(Libra)')
+            virgo = types.KeyboardButton('Дева(Virgo)')
+            back = types.KeyboardButton('Назад')
+            marcup.add(aquarius, signarius, libra, virgo, back)
+            bot.send_message(message.chat.id, 'Знаки зодиака', reply_markup=marcup)
+        elif message.text == 'Главное меню':
+            marcup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            b_author = types.KeyboardButton('Автор бота')
+            b_signs = types.KeyboardButton('Все знаки зодиака')
+            marcup.add(b_author, b_signs)
+            bot.send_message(message.chat.id, 'Главное меню', reply_markup=marcup)
+        elif message.text == 'Водолей(Aquarius)':
+            marcup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            b_back = types.KeyboardButton('Назад')
+            b_main = types.KeyboardButton('Главное меню')
+            marcup.add(b_back, b_main)
+            bot.send_message(message.chat.id, Horoscope.aquarius_prediction(), reply_markup=marcup)
+        elif message.text == 'Стрелец(Signarius)':
+            marcup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            b_back = types.KeyboardButton('Назад')
+            b_main = types.KeyboardButton('Главное меню')
+            marcup.add(b_back, b_main)
+            bot.send_message(message.chat.id, Horoscope.saginarius_prediction(), reply_markup=marcup)
+        elif message.text == 'Весы(Libra)':
+            marcup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            b_back = types.KeyboardButton('Назад')
+            b_main = types.KeyboardButton('Главное меню')
+            marcup.add(b_back, b_main)
+            bot.send_message(message.chat.id, Horoscope.libra_prediction(), reply_markup=marcup)
+        elif message.text == 'Дева(Virgo)':
+            marcup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            b_back = types.KeyboardButton('Назад')
+            b_main = types.KeyboardButton('Главное меню')
+            marcup.add(b_back, b_main)
+            bot.send_message(message.chat.id, Horoscope.virgo_prediction(), reply_markup=marcup)
 
 
-async def about_author(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    effective_chat = update.effective_chat
-    if not effective_chat:
-        logger.info('effective chat is None')
-        return
-    await context.bot.send_message(
-        chat_id=effective_chat.id,
-        text=message_constants.AUTHOR
-    )
-
-
-async def signs(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    effective_chat = update.effective_chat
-    if not effective_chat:
-        logger.info('effective chat is None')
-        return
-    marcup = ReplyKeyboardMarkup([['Aquarius', 'Saginarius'],
-                                  ['Назад']], one_time_keyboard=False)
-    await context.bot.send_message(
-        reply_markup=marcup,
-        chat_id=effective_chat.id,
-        text='Все знаки зодиака',
-    )
+@bot.message_handler(content_types=['text'])
+def aquarius_prediction(message):
+    pass
 
 
 if __name__ == '__main__':
-    application = ApplicationBuilder().token(constants.TELEGRAM_TOKEN).build()
-
-    start_handler = CommandHandler('start', start)
-    author_handler = CommandHandler('author', about_author)
-    signs_handler = CommandHandler('signs', signs)
-    application.add_handler(signs_handler)
-    application.add_handler(start_handler)
-    application.add_handler(author_handler)
-    application.run_polling()
+    bot.polling(none_stop=True)
