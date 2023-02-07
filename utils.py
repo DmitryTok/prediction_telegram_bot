@@ -1,6 +1,10 @@
 from logger import logger
 
 
+class ParserFindTagException(Exception):
+    pass
+
+
 def find_tag(soup, tag, attrs=None):
     searched_tag = soup.find(tag, attrs=(attrs or {}))
     if searched_tag is None:

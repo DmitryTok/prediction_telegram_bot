@@ -1,6 +1,13 @@
-AQUARIUS_URL = 'https://horo.mail.ru/prediction/aquarius/today/'
-SAGINARIUS_URL = 'https://horo.mail.ru/prediction/sagittarius/today/'
-LIBRA_URL = 'https://horo.mail.ru/prediction/libra/today/'
-VIRGO_URL = 'https://horo.mail.ru/prediction/virgo/today/'
-TELEGRAM_TOKEN = '5984146500:AAHLyk583LldtEJCMWCejB-iQZOLvny3ve8'
-CHAT_ID = 789323627
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+AQUARIUS_URL = os.getenv('AQUARIUS_URL')
+SAGINARIUS_URL = os.getenv('SAGINARIUS_URL')
+LIBRA_URL = os.getenv('LIBRA_URL')
+VIRGO_URL = os.getenv('VIRGO_URL')
+TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
+CHAT_ID = os.getenv('CHAT_ID')
